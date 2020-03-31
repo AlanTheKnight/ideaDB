@@ -95,7 +95,9 @@ I recommend to provide an integer primary key.
             print(i.name)
         # Alex
         # Alan
-   Or use lambda instead:
+        
+    Or use lambda instead:
+
         for i in t.filter_func(lambda id, data: id < 2):
             print(i.id)
         # 0
