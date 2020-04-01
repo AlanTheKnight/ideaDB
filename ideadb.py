@@ -117,12 +117,18 @@ class Table():
                 return None
         else:
             for i in self.data:
+                c = 0
                 for x in kwargs:
                     try:
                         if self.data[i][x] == kwargs[x]:
-                            return Row(self, i)
+                            c += 1
+           
                     except KeyError:
                         return None
+                if c == len(kwargs):
+                    return Row(self, i)
+                else:
+                    return None
             return None
 
     def filter(self, **kwargs):
@@ -181,30 +187,48 @@ class Table():
             return len(self.data)
 
     def join(self, table, columns=[]):
-        if not columns:
-            # Adding columns from other table
-            for i in table._data:
+
+        def dict_join(dict1: dict, dict2: dict):
+            for i in dict2:
+                if not i in dict1:
+                    dict1[i] = dict2[i]
+                else:
+                    if dict1[i] is not None:
+                        continue
+                    else:
+                        dict1[i] = dict2[i]
+            return dict1
+
+        ifpk = 'pk' in columns
+        columns = list(set(self._data.keys()).intersection(set(table._data.keys())).intersection(set(columns)))
+        for i in table._data:
                 if i not in self._data:
                     self.add_column(i)
-            # Adding rows from other table
+        if not columns:
             for i in table.data:
                 self.add(**table.data[i])
         else:
-            if 'pk' in columns:
+            if ifpk:
                 columns.pop(columns.index('pk'))
                 if not columns:
-                    for i in table._data:
-                        if i not in self._data:
-                            self.add_column(i)
                     for i in table.data:
                         if i not in self.data:
                             self.add(**table.data[i])
                         else:
-                            self.data[i] = dict(list(table.data[i].items()) + list(self.data[i].items()))
+                            self.data[i] = dict_join(table.data[i], self.data[i])
                 else:
                     pass #TODO
             else:
-                pass #TODO
+                for x in table.data:
+                    search = {}
+                    for i in columns:
+                        search[i] = table.data[x][i]
+                    result = self.get(**search)
+                    if result is None:
+                        self.add(**table.data[x])
+                    else:
+                        i = result.pk
+                        self.data[i] = dict_join(table.data[x], self.data[i])
 
 
         
