@@ -201,6 +201,7 @@ class Table():
 
         ifpk = 'pk' in columns
         columns = list(set(self._data.keys()).intersection(set(table._data.keys())).intersection(set(columns)))
+        if ifpk: columns.append("pk")
         for i in table._data:
                 if i not in self._data:
                     self.add_column(i)
@@ -215,9 +216,17 @@ class Table():
                         if i not in self.data:
                             self.add(**table.data[i])
                         else:
-                            self.data[i] = dict_join(table.data[i], self.data[i])
+                            self.data[i] = dict_join(self.data[i], table.data[i])
                 else:
-                    pass #TODO
+                    for i in table.data:
+                        search = {}
+                        for x in columns:
+                            search[x] = table.data[i][x]
+                        result = self.get(**search)
+                        if i not in self.data or result is None:
+                            self.add(**table.data[i])
+                        else:
+                            self.data[i] = dict_join(self.data[i], table.data[i])
             else:
                 for x in table.data:
                     search = {}
@@ -228,7 +237,7 @@ class Table():
                         self.add(**table.data[x])
                     else:
                         i = result.pk
-                        self.data[i] = dict_join(table.data[x], self.data[i])
+                        self.data[i] = dict_join(self.data[i], table.data[x])
 
 
         

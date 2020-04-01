@@ -26,5 +26,5 @@ t2.save()
 t()
 t2()
 
-t.join(t2, columns=['name', 'age', 'sex'])
+t.join(t2, columns=['pk'])
 t()
