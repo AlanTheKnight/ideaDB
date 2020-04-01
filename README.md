@@ -120,8 +120,14 @@ I recommend to provide an integer primary key.
 
 ### Changing data
 
-    row = t.get(name="Max")
-    row.change(name="Alec)
+1. Using Row object
+
+        row = t.get(name="Max")
+        row.change(name="Alec)
+        
+2. Using dictionary
+
+        t.data[t.get(name="Max").pk]['name'] = 'Alec'
 
 ### Saving data
 
