@@ -36,9 +36,9 @@ The only argument is a column's name.
     
 ### Adding a row to a table
 
-    t.add(0, name="Max", email="max@gmail.com", age=14)
-    t.add(1, name="Alex", email="alex@gmail.com", age=15)
-    t.add(2, name="Alan", email="alan@gmail.com", age=16)
+    t.add(name="Max", email="max@gmail.com", age=14)
+    t.add(name="Alex", email="alex@gmail.com", age=15)
+    t.add(name="Alan", email="alan@gmail.com", age=16)
 
 First argument is a primary key - main id of a row.
 I recommend to provide an integer primary key.
@@ -67,8 +67,8 @@ I recommend to provide an integer primary key.
             
 3. Get elements by some keywords
 
-        t.get(pk=0) # Row with id=0
-        t.get(name="Alex", age=15) # Row with id=1
+        t.get(pk=0) # Row with pk=0
+        t.get(name="Alex", age=15) # Row with pk=1
         t.get(name="Max", age=0) # None
         
 4. Filter elements by some keywords
@@ -85,6 +85,7 @@ I recommend to provide an integer primary key.
         # {0: {'email': 'max@gmail.com', 'name': 'Max', 'age': 15}, 1: {'email': 'alex@gmail.com', 'name': 'Alex', 'age': 15}, 2: {'email': 'alan@gmail.com', 'name': 'Alan', 'age': 16}}
         print(t.data[0]['name'])
         # Max
+
 6. Use custom function to filter elements
 
         def myfunc(id, data):
@@ -102,4 +103,27 @@ I recommend to provide an integer primary key.
             print(i.id)
         # 0
         # 1
+
+### Deleting data
+
+1. Clear a table
+
+        t.clear()
+
+2. Remove row by given pk
+
+        t.remove(0)
+
+3. Delete a table and it's files
+
+        t.delete()
+
+### Changing data
+
+    row = t.get(name="Max")
+    row.change(name="Alec)
+
+### Saving data
+
+    t.save()
     

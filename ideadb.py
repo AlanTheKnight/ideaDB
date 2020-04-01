@@ -79,8 +79,8 @@ class Table():
     def add(self, **kwargs):
         """Add a row to a table."""
 
-        if list(self.data.keys()):
-            key = list(self.data.keys())[-1]+1
+        if self.data.keys():
+            key = max(list(self.data.keys())) + 1
         else:
             key = 0
 
@@ -102,11 +102,15 @@ class Table():
             t.add_row(l2)
         print(t)
 
+    def clear(self):
+        self.data = {}
+        self._data = {}
+
     def get(self, **kwargs):
         """Get a row from table by given keyword arguments."""
         if 'pk' in kwargs:
             try:
-                return Row(self._data, kwargs['pk'],  self.data[kwargs['pk']])
+                return Row(self, kwargs['pk'])
             except KeyError:
                 return None
         else:
@@ -127,10 +131,10 @@ class Table():
                 try:
                     if x == "pk":
                         if i == kwargs["pk"]:
-                            out.append(Row(self._data, i, self.data[i]))
+                            out.append(Row(self, i))
                     else:
                         if self.data[i][x] == kwargs[x]:
-                            out.append(Row(self._data, i, self.data[i]))
+                            out.append(Row(self, i))
                 except KeyError:
                     pass
         return out
@@ -139,7 +143,7 @@ class Table():
         """Return all rows of the table implemented in Row object."""
         out = []
         for i in self.data:
-            out.append(Row(self._data, i, self.data[i]))
+            out.append(Row(self, i))
         return out
 
     def remove(self, pk):
@@ -168,30 +172,32 @@ class Table():
         out = []
         for i in self.data:
             if function(i, self.data[i]):
-                out.append(Row(self._data, i, self.data[i]))
+                out.append(Row(self, i))
         return out
+
+        def __len__(self):
+            return len(self.data)
+
+        
         
 
 
 class Row():
-    def __init__(self, h_data, id, data):
-        self._data = h_data
-        self.id = id
-        self.data = data
+    def __init__(self, table, pk):
+        self.table = table
+        self.pk = pk
+    
     def __getattr__(self, attr):
-        if attr in self._data:
-            return self.data[attr]
-        elif attr == "pk":
-            return self.id
+        if attr in self.table._data:
+            return self.table.data[self.pk][attr]
+    
     def __repr__(self):
-        return "Row with pk={}".format(self.id)
+        return "Row with pk={}".format(self.pk)
 
+    def data(self):
+        return self.table.data[self.pk]
 
-if __name__ == '__main__':
-    db = DataBase('/home/pashs/PycharmProjects/ideaDB/ideaDB', 'db')
-    a = Table(db, 'users')
-    a.add_column('email')
-    a.add_column('name')
-    a.add(email='pashs@gmail.com', name='Паша')
-    a.add(email='test@test.com', name='Test')
-    print(a.all())
+    def change(self, **kwargs):
+        for i in kwargs:
+            if i in self.table._data:
+                self.table.data[self.pk][i] = kwargs[i]
