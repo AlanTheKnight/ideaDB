@@ -76,8 +76,9 @@ class Table():
         """Add a column to a table"""
         self._data[name] = t
 
-    def add(self, key, **kwargs):
+    def add(self, **kwargs):
         """Add a row to a table."""
+        key = len(self.data)
         self.data[key] = {}
         for i in self._data:
             if i not in kwargs:
@@ -179,3 +180,13 @@ class Row():
             return self.id
     def __repr__(self):
         return "Row with pk={}".format(self.id)
+
+
+if __name__ == '__main__':
+    db = DataBase('/home/pashs/PycharmProjects/ideaDB/ideaDB', 'db')
+    a = Table(db, 'users')
+    a.add_column('email')
+    a.add_column('name')
+    a.add(email='pashs@gmail.com', name='Паша')
+    a.add(email='test@test.com', name='Test')
+    print(a.all())
