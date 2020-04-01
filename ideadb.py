@@ -20,7 +20,7 @@ class DataBase():
     def __init__(self, path: str, name: str):
         if not os.path.isdir(path):
             raise CreationError("Invalid database path.")
-        self.path = os.path.join(path, name)
+        self.path = os.path.join(path, "." + name)
         self.name = name
         if not os.path.isdir(self.path):
             os.mkdir(self.path)
@@ -72,9 +72,11 @@ class Table():
         with open(self._path, "wb") as file:
             pickle.dump(self._data, file)
     
-    def add_column(self, name: str, t=None):
+    def add_column(self, name: str, t=None, default=None):
         """Add a column to a table"""
-        self._data[name] = t
+        self._data[name] = {'type':t, 'default':default}
+        for i in self.data:
+            self.data[i][name] = default
 
     def add(self, **kwargs):
         """Add a row to a table."""
@@ -118,7 +120,7 @@ class Table():
                 for x in kwargs:
                     try:
                         if self.data[i][x] == kwargs[x]:
-                            return self.data[i]
+                            return Row(self, i)
                     except KeyError:
                         return None
             return None
@@ -178,7 +180,33 @@ class Table():
         def __len__(self):
             return len(self.data)
 
-        
+    def join(self, table, columns=[]):
+        if not columns:
+            # Adding columns from other table
+            for i in table._data:
+                if i not in self._data:
+                    self.add_column(i)
+            # Adding rows from other table
+            for i in table.data:
+                self.add(**table.data[i])
+        else:
+            if 'pk' in columns:
+                columns.pop(columns.index('pk'))
+                if not columns:
+                    for i in table._data:
+                        if i not in self._data:
+                            self.add_column(i)
+                    for i in table.data:
+                        if i not in self.data:
+                            self.add(**table.data[i])
+                        else:
+                            self.data[i] = dict(list(table.data[i].items()) + list(self.data[i].items()))
+                else:
+                    pass #TODO
+            else:
+                pass #TODO
+
+
         
 
 
