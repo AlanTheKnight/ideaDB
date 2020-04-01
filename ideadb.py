@@ -78,7 +78,12 @@ class Table():
 
     def add(self, **kwargs):
         """Add a row to a table."""
-        key = len(self.data)
+
+        if list(self.data.keys()):
+            key = list(self.data.keys())[-1]+1
+        else:
+            key = 0
+
         self.data[key] = {}
         for i in self._data:
             if i not in kwargs:
