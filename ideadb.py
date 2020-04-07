@@ -1,9 +1,10 @@
 import pickle
 import os
+from shutil import rmtree
 from prettytable import PrettyTable
 
 
-class CreationError(Exception):
+class DataBaseError(Exception):
     def __init__(self, *args):
         if args:
             self.message = args[0]
@@ -13,13 +14,13 @@ class CreationError(Exception):
         if self.message:
             return "{}".format(self.message)
         else:
-            return "CreationError has been raised."
+            return "DataBase error has been raised."
 
 
 class DataBase():
     def __init__(self, path: str, name: str):
         if not os.path.isdir(path):
-            raise CreationError("Invalid database path.")
+            raise DataBaseError("Invalid database path.")
         self.path = os.path.join(path, "." + name)
         self.name = name
         if not os.path.isdir(self.path):
@@ -35,12 +36,15 @@ class DataBase():
             t.add_row([i])
         print(t)
 
+    def delete(self):
+        rmtree(self.path)
+
 
 class Table():
     """
     A table is a dictionary object connected to a DataBase db with name. 
     """
-    def __init__(self, db, name: str):
+    def __init__(self, db: DataBase, name: str):
         try:
             self.path = os.path.join(db.path, name)
             self._path = os.path.join(db.path, "." + name)
@@ -154,15 +158,21 @@ class Table():
             out.append(Row(self, i))
         return out
 
-    def remove(self, pk):
+    def remove_row(self, pk):
         """Removes a row in table by it's primary key."""
         self.data.pop(pk, None)
 
+    def __iter__(self):
+        return iter(self.data)
+
     def remove_column(self, name):
         """Remove column from a table by it's"""
+        if not name in self._data:
+            return False
         for i in self.data:
             self.data[i].pop(name, None)
         self._data.pop(name, None)
+        return True
 
     def delete(self):
         """Delete a table from the database."""
@@ -238,9 +248,6 @@ class Table():
                     else:
                         i = result.pk
                         self.data[i] = dict_join(self.data[i], table.data[x])
-
-
-        
 
 
 class Row():
